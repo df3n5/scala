@@ -33,7 +33,7 @@ integrationRepoUrl=${integrationRepoUrl-"https://scala-ci.typesafe.com/artifacto
 
 sbtRepositoryConfig="$WORKSPACE/scripts/sbt-repositories-config"
 
-sbtArgs="{$sbtArgs- -Dsbt.override.build.repos=true -Dsbt.repository.config=$sbtRepositoryConfig}"
+sbtArgs="${sbtArgs--Dsbt.override.build.repos=true -Dsbt.repository.config=$sbtRepositoryConfig}"
 
 
 # temp dir where all 'non-build' operation are performed

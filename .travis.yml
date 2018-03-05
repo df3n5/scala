@@ -15,6 +15,8 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
 
+install: bundle install
+
 before_script:
   - (cd admin && ./init.sh)
 
@@ -32,7 +34,6 @@ script:
   - if [ "$testStability" == "yes" ]; then testStability; fi
   - bundle exec jekyll build -s spec/ -d build/spec
 
-install: bundle install
 
 # cat /dev/urandom | head -c 10000 | openssl sha1 > ./secret
 # openssl aes-256-cbc -pass "file:./secret" -in id_dsa_spec212_b4096 -out spec/id_dsa_travis.enc -a
