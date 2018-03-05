@@ -28,6 +28,8 @@ SBT_CMD="$SBT_CMD -sbt-version 0.13.17"
 # repo to publish builds
 integrationRepoUrl=${integrationRepoUrl-"https://scala-ci.typesafe.com/artifactory/scala-integration/"}
 
+sbtRepositoryConfig="scripts/sbt-repositories-config"
+
 # TODO: this is weird for historical reasons, simplify now that we have one version of sbt in use
 # (WAS: trying to get this to work on multiple versions of sbt-extras...
 # the old version (on jenkins, and I don't want to upgrade for risk of breaking other builds) honors -sbt-dir
@@ -174,7 +176,6 @@ EOF
 # Takes a variable number of additional repositories as argument.
 # See http://www.scala-sbt.org/0.13/docs/Proxy-Repositories.html
 function generateRepositoriesConfig() {
-  sbtRepositoryConfig="scripts/sbt-repositories-config"
   echo > "$sbtRepositoryConfig" '[repositories]'
   if [[ $# -gt 0 ]]; then
     for i in $(seq 1 $#); do
