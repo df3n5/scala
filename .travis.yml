@@ -15,8 +15,10 @@ cache:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
 
-script:
+before_script:
   - (cd admin && ./init.sh)
+
+script:
   - source scripts/common
   - source scripts/bootstrap_fun
   - mkFreshIvy
@@ -25,7 +27,7 @@ script:
   - removeExistingBuilds $integrationRepoUrl
   - if [ ! -z "$STARR_REF" ]; then buildStarr; fi
   - buildLocker
-  - rm -rf build/ && buildQuick   # locker is now published in artifactory -- make sure we resolve from there
+  - buildQuick "test/it:test" # TODO: parallellize the remaining steps, reusing (via travis' cache mechanism?) the build/ from this step
   - if [ "$publishToSonatype" == "yes" ]; then publishSonatype; fi
   - if [ "$testStability" == "yes" ]; then testStability; fi
   - bundle exec jekyll build -s spec/ -d build/spec

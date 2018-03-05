@@ -262,6 +262,9 @@ buildLocker() {
   $SBT_CMD -no-colors $sbtArgs $SET_STARR --warn "setupBootstrapLocker $integrationRepoUrl $SCALA_VER" $clean publish
   travis_fold_end locker
 
+  # locker is now published in artifactory -- make sure we resolve from there
+  rm -rf build/
+
   echo "### Building modules using locker"
 
   # build, test and publish modules with this core
@@ -291,6 +294,7 @@ buildQuick() {
       ${updatedModuleVersions[@]} \
       "setupBootstrapQuick $integrationRepoUrl $SCALA_VER" \
       $clean \
+      $@ \
       publish
   travis_fold_end quick
 }

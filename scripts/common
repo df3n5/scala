@@ -6,6 +6,9 @@ set -e
 
 WORKSPACE="${WORKSPACE-`pwd`}"
 
+# the default (home dir) is fine on Travis, since each jobs gets its own worker (ivy cache is cached by travis)
+IVY_HOME="${IVY_HOME-$HOME/.ivy2}"
+
 # Known problems : does not fare well with interrupted, partial
 # compilations. We should perhaps have a multi-dependency version
 # of do_i_have below
@@ -13,14 +16,14 @@ WORKSPACE="${WORKSPACE-`pwd`}"
 LOGGINGDIR="$WORKSPACE/logs"
 mkdir -p $LOGGINGDIR
 
-unset SBT_HOME
-SBT_HOME="$WORKSPACE/.sbt"
-mkdir -p $SBT_HOME
-IVY_CACHE="$WORKSPACE/.ivy2"
-mkdir -p $IVY_CACHE
+# unset SBT_HOME
+# SBT_HOME="$WORKSPACE/.sbt"
+# mkdir -p $SBT_HOME
+# IVY_CACHE="$WORKSPACE/.ivy2"
+# mkdir -p $IVY_CACHE
 
 # TODO: do we need to nuke the cache on travis?
-rm -rf $IVY_CACHE/cache/org.scala-lang
+# rm -rf $IVY_CACHE/cache/org.scala-lang
 
 SBT_CMD=${sbtCmd-sbt}
 SBT_CMD="$SBT_CMD -sbt-version 0.13.17"
@@ -28,14 +31,9 @@ SBT_CMD="$SBT_CMD -sbt-version 0.13.17"
 # repo to publish builds
 integrationRepoUrl=${integrationRepoUrl-"https://scala-ci.typesafe.com/artifactory/scala-integration/"}
 
-sbtRepositoryConfig="scripts/sbt-repositories-config"
+sbtRepositoryConfig="$WORKSPACE/scripts/sbt-repositories-config"
 
-# TODO: this is weird for historical reasons, simplify now that we have one version of sbt in use
-# (WAS: trying to get this to work on multiple versions of sbt-extras...
-# the old version (on jenkins, and I don't want to upgrade for risk of breaking other builds) honors -sbt-dir
-# the new version of sbt-extras ignores sbt-dir, so we pass it in as -Dsbt.global.base
-# need to set sbt-dir to one that has the gpg.sbt plugin config)
-sbtArgs="-ivy $WORKSPACE/ivy2 -Dsbt.override.build.repos=true -Dsbt.repository.config=$sbtRepositoryConfig -Dsbt.global.base=$HOME/.sbt/0.13 -sbt-dir $HOME/.sbt/0.13"
+sbtArgs="{$sbtArgs- -Dsbt.override.build.repos=true -Dsbt.repository.config=$sbtRepositoryConfig}"
 
 
 # temp dir where all 'non-build' operation are performed
