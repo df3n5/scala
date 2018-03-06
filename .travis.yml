@@ -31,7 +31,7 @@ jobs:
           # - deriveModuleVersions
           # - removeExistingBuilds $integrationRepoUrl
           # - if [ ! -z "$STARR_REF" ]; then buildStarr; fi
-          # - buildLocker
+          - buildLocker
           # - rm -rf build/ # ensure we resolve from artifactory
           # - buildModules
           - buildQuick 
@@ -52,7 +52,7 @@ jobs:
 
       - stage: publish
         script: publishSonatype
-        if: env(publishToSonatype) = yes
+        if: env(publishToSonatype) = yes # TODO: is this environment variable evaluated afer `source scripts/common` has a chance to set it? maybe it's ok and we can just keep this as the hook for manually triggering a release
 
 # cat /dev/urandom | head -c 10000 | openssl sha1 > ./secret
 # openssl aes-256-cbc -pass "file:./secret" -in id_dsa_spec212_b4096 -out spec/id_dsa_travis.enc -a
