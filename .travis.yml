@@ -1,8 +1,5 @@
 sudo: required # GCE VMs have better performance (will be upgrading to premium VMs soon)
 
-# this builds the spec using jekyll
-# based on http://www.paperplanes.de/2013/8/13/deploying-your-jekyll-blog-to-s3-with-travis-ci.html
-
 language: scala
 jdk: openjdk8
 
@@ -35,6 +32,9 @@ jobs:
           # - rm -rf build/ # ensure we resolve from artifactory
           # - buildModules
           - buildQuick 
+
+      # this builds the spec using jekyll
+      # based on http://www.paperplanes.de/2013/8/13/deploying-your-jekyll-blog-to-s3-with-travis-ci.html
       - stage: build
         script: bundle exec jekyll build -s spec/ -d build/spec
         rvm: 2.2
