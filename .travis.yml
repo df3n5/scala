@@ -43,11 +43,6 @@ jobs:
       - stage: test
         script: buildQuick $part # shouldn't rebuild, since build/ is cached
         env:
-          global:
-            - SBT_CMD=$(SBT_CMD)
-            - sbtArgs=$(sbtArgs)
-            - SCALA_VER=$(SCALA_VER)
-            - updatedModuleVersions=$(updatedModuleVersions)
           - part=testRun
           - part=testPosPres
           - part=testRest
