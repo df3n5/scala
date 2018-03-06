@@ -41,12 +41,16 @@ jobs:
         install: bundle install
 
       - stage: test
-        script: buildQuick $part # shouldn't rebuild, since build/ is cached
         env:
           - part=testRun
           - part=testPosPres
           - part=testRest
           - part="testMima genDoc"
+        script:
+          - source scripts/common
+          - source scripts/bootstrap_fun
+          - mkFreshIvy          
+          - buildQuick $part # shouldn't rebuild, since build/ is cached
       - script: testStability 
         if: env(testStability) = yes
 
