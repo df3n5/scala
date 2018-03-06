@@ -21,33 +21,33 @@ install: bundle install
 before_script:
   - (cd admin && ./init.sh)
 
-script:
-  - source scripts/common
-  - source scripts/bootstrap_fun
-  - mkFreshIvy
-  - determineScalaVersion
-  - deriveModuleVersions
-  - removeExistingBuilds $integrationRepoUrl
-  - if [ ! -z "$STARR_REF" ]; then buildStarr; fi
-  - buildLocker
-
 # buildQuick needs following env (is that propagated to stages?)
 # - PRIVATE_REPO_PASS, integrationRepoUrl,
 # computed: SBT_CMD sbtArgs SCALA_VER updatedModuleVersions 
 jobs:
-    env.global:
-      - SBT_CMD=env(SBT_CMD)
-      - sbtArgs=env(sbtArgs)
-      - SCALA_VER=env(SCALA_VER)
-      - updatedModuleVersions=env(updatedModuleVersions)
-  
     include:
       - stage: build
-        script: buildQuick 
+        script: 
+          - source scripts/common
+          - source scripts/bootstrap_fun
+          - mkFreshIvy
+          - determineScalaVersion
+          # - deriveModuleVersions
+          # - removeExistingBuilds $integrationRepoUrl
+          # - if [ ! -z "$STARR_REF" ]; then buildStarr; fi
+          # - buildLocker
+          # - rm -rf build/ # ensure we resolve from artifactory
+          # - buildModules
+          - buildQuick 
       - script: bundle exec jekyll build -s spec/ -d build/spec
       - stage: test
         script: buildQuick $part # shouldn't rebuild, since build/ is cached
         env:
+          global:
+            - SBT_CMD=$(SBT_CMD)
+            - sbtArgs=$(sbtArgs)
+            - SCALA_VER=$(SCALA_VER)
+            - updatedModuleVersions=$(updatedModuleVersions)
           - part=testRun
           - part=testPosPres
           - part=testRest

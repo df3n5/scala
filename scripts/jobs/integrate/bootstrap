@@ -105,7 +105,10 @@ fi
 
 buildLocker
 
-rm -rf "build/"
+# locker is now published in artifactory -- make sure we resolve from there
+rm -rf build/
+
+buildModules
 
 buildQuick
 

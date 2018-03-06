@@ -71,15 +71,28 @@ buildScalaCheck(){
 }
 
 # build modules, using ${buildTasks[@]} (except for ScalaCheck, which is hard-coded to publish to artifactory)
+# publish to our internal repo (so we can resolve the modules in the scala build below)
+# we only need to build the modules necessary to build Scala itself
+# since the version of locker and quick are the same
 buildModules() {
+  echo "### Building modules using locker"
+
   publishTasks=('set credentials += Credentials("Artifactory Realm", "scala-ci.typesafe.com", "scala-ci", System.getenv("PRIVATE_REPO_PASS"))' "set every publishTo := Some(\"publish-repo\" at \"$integrationRepoUrl\")")
   buildTasks=($publishPrivateTask)
   buildXML
   # buildScalaCheck
   buildPartest
+  
+  constructUpdatedModuleVersions  
 }
 
+# build/test/publish scala core modules to sonatype (this will start a new staging repo)
+# (was hoping we could make everything go to the same staging repo, but it's not timing that causes two staging repos to be opened)
+# NOTE: only publish those for which versions are set
+# test and publish to sonatype, assuming you have ~/.sbt/0.13/sonatype.sbt and ~/.sbt/0.13/plugin/gpg.sbt
 buildPublishedModules() {
+  echo "### Publishing modules to sonatype"
+  
   publishTasks=('set credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", System.getenv("SONA_USER"), System.getenv("SONA_PASS"))' "set pgpPassphrase := Some(Array.empty)")
   buildTasks=($publishSonatypeTaskModules)
   buildXML
@@ -261,19 +274,6 @@ buildLocker() {
   travis_fold_start locker "Building locker"
   $SBT_CMD -no-colors $sbtArgs $SET_STARR --warn "setupBootstrapLocker $integrationRepoUrl $SCALA_VER" $clean publish
   travis_fold_end locker
-
-  # locker is now published in artifactory -- make sure we resolve from there
-  rm -rf build/
-
-  echo "### Building modules using locker"
-
-  # build, test and publish modules with this core
-  # publish to our internal repo (so we can resolve the modules in the scala build below)
-  # we only need to build the modules necessary to build Scala itself
-  # since the version of locker and quick are the same
-  buildModules
-
-  constructUpdatedModuleVersions
 }
 
 #### QUICK
@@ -344,11 +344,6 @@ publishSonatype() {
       $publishSonatypeTaskCore
   travis_fold_end sona
 
-  # echo "### Publishing modules to sonatype"
-  # build/test/publish scala core modules to sonatype (this will start a new staging repo)
-  # (was hoping we could make everything go to the same staging repo, but it's not timing that causes two staging repos to be opened)
-  # NOTE: only publish those for which versions are set
-  # test and publish to sonatype, assuming you have ~/.sbt/0.13/sonatype.sbt and ~/.sbt/0.13/plugin/gpg.sbt
   buildPublishedModules
 
   open=$(st_stagingReposOpen)
