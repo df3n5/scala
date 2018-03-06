@@ -6,9 +6,6 @@ sudo: required # GCE VMs have better performance (will be upgrading to premium V
 language: scala
 jdk: openjdk8
 
-# the spec is built with jekyll
-rvm:
-  - 2.2
 
 cache:
   directories:
@@ -16,7 +13,6 @@ cache:
     - $HOME/.sbt
     - build/
 
-install: bundle install
 
 before_script:
   - (cd admin && ./init.sh)
@@ -39,7 +35,11 @@ jobs:
           # - rm -rf build/ # ensure we resolve from artifactory
           # - buildModules
           - buildQuick 
-      - script: bundle exec jekyll build -s spec/ -d build/spec
+      - stage: build
+        script: bundle exec jekyll build -s spec/ -d build/spec
+        rvm: 2.2
+        install: bundle install
+
       - stage: test
         script: buildQuick $part # shouldn't rebuild, since build/ is cached
         env:
